@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="62df2a99-8efb-4a19-b83f-3252610de1df" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="b2adda3c-1e74-4eed-ba80-6486466a906d" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="pooja@14" database="hremployees"/>
+	</db:config>
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="6b9f09c5-2d6f-407a-abb7-aa35df66bd99" keyGenerationExpression="#[attributes.queryParams.employeeId]" >
+		<os:private-object-store entryTtl="5" expirationInterval="40" entryTtlUnit="HOURS"/>
+	</ee:object-store-caching-strategy>
+	<flow name="cacheFlow" doc:id="b0568357-0b1c-4582-b59b-c7ab1b247ac1" >
+		<http:listener doc:name="Listener" doc:id="7cf9a1c2-a7ea-40ec-be91-ecf01b9b628a" config-ref="HTTP_Listener_config" path="/cache"/>
+		<logger level="INFO" doc:name="start Logger" doc:id="d464270a-a317-493d-94ab-af432c0a9a6b" />
+		<ee:cache doc:name="Cache" doc:id="01cae3a9-e69b-4f68-9eb6-bfa75f2dbdc7" cachingStrategy-ref="Caching_Strategy">
+			<db:select doc:name="Select" doc:id="b0ce4efc-2b08-483d-b204-23ef5626757e" config-ref="Database_Config">
+			<db:sql><![CDATA[select * from emp_info where  employeeId  = :employeeId ;]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	employeeId : attributes.queryParams.employeeId
+}]]]></db:input-parameters>
+		</db:select>
+			<ee:transform doc:name="Transform Message" doc:id="85ed1467-d5c6-4eaa-8827-9a0a50f2078b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		</ee:cache>
+		<logger level="INFO" doc:name="End Logger" doc:id="90459754-117c-4af1-8b35-4b3f7951022f" message="#[payload]"/>
+	</flow>
+</mule>
