@@ -35,6 +35,7 @@ output application/json
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+			<logger level="INFO" doc:name="main identifiedLogger" doc:id="3323ef2f-dded-46ed-991f-8c16279b02db" />
 		</ee:cache>
 		<logger level="INFO" doc:name="End Logger" doc:id="90459754-117c-4af1-8b35-4b3f7951022f" message="#[payload]"/>
 		<logger level="INFO" doc:name="main endLogger" doc:id="f2568894-c506-45d2-a560-d36d95ed647c" />
