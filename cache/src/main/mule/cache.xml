@@ -26,6 +26,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 	employeeId : attributes.queryParams.employeeId
 }]]]></db:input-parameters>
 		</db:select>
+			<logger level="INFO" doc:name="Pooja Logger" doc:id="d114941d-7859-4ca1-8f02-35b03ef9550f" />
 			<ee:transform doc:name="Transform Message" doc:id="85ed1467-d5c6-4eaa-8827-9a0a50f2078b">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
